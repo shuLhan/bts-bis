@@ -1,5 +1,11 @@
+.header {
+	background: rgba(255, 0, 0, 0.7);
+	color: white;
+	padding: 8px 8px;
+}
+
 #map {
-	height : 500px;
+	height : 220px;
 	margin : 10px;
 }
 
@@ -24,4 +30,10 @@
 	float: left;
 	margin-right: 8px;
 	opacity: 0.7;
+}
+
+.graph_line {
+	stroke: red;
+	stroke-width: 4px;
+	fill-opacity: 0;
 }

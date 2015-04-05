@@ -4,6 +4,11 @@ var g2 = L.layerGroup ();
 var g3 = L.layerGroup ();
 var g4 = L.layerGroup ();
 var info;
+var bts_trans_graph;
+var bts_trans_data;
+var date_start;
+var date_end;
+var bts_id;
 
 function get_color (mode)
 {
@@ -17,6 +22,10 @@ function bts_on_click (e)
 	var bts_data = bts[e.target.options.bts_idx];
 
 	info.update (bts_data.id, bts_data.mode);
+
+	bts_id = bts_data.id;
+
+	bts_trans_load (bts_id);
 }
 
 function map_load_bts ()
@@ -87,6 +96,60 @@ function map_create_legend ()
 	legend.addTo(map);
 }
 
+function bts_trans_init ()
+{
+	date_start = moment().startOf("month");
+	date_end = moment().endOf("month");
+
+	$( "#tr_date_start" ).datepicker ("setDate", date_start.format("YYYY-MM-DD"));
+	$( "#tr_date_end" ).datepicker ("setDate", date_end.format("YYYY-MM-DD"));
+
+	bts_trans_graph.setOptions ({
+			start: date_start.format("YYYY-MM-DD")
+		,	end: date_end.format("YYYY-MM-DD")
+		});
+}
+
+function bts_trans_load (id)
+{
+	var url = "/q/bts_transaksi_hari.php?id="+ id;
+
+	date_start = moment ($("#tr_date_start").datepicker ("getDate"));
+	date_end = moment ($("#tr_date_end").datepicker ("getDate"));
+
+	var dt = date_start.toArray ();
+	url += "&y0="+ dt[0] +"&m0="+ (dt[1]+1) +"&d0="+ dt[2];
+
+	dt = date_end.toArray ();
+	url += "&y1="+ dt[0] +"&m1="+ (dt[1]+1) +"&d1="+ dt[2];
+
+	console.log (url);
+
+	$.getJSON (url, function (res) {
+		console.log (res);
+		if (res.success) {
+			bts_trans_data.clear ();
+			bts_trans_data.add (res.data);
+
+			var group = new vis.DataSet ();
+
+			group.add ({
+					id : 0
+				,	content : "Jumlah transaksi"
+				,	className : 'graph_line'
+				});
+
+			bts_trans_graph.setGroups (group);
+			bts_trans_graph.setItems (bts_trans_data);
+			bts_trans_graph.setOptions ({
+				start: date_start.format("YYYY-MM-DD")
+			,	end: date_end.format("YYYY-MM-DD")
+			});
+			bts_trans_graph.redraw ();
+		}
+	});
+}
+
 $( document ).ready (function() {
 	var layers =
 	{
@@ -94,7 +157,7 @@ $( document ).ready (function() {
 	,	"3G" : g3
 	,	"4G" : g4
 	};
-
+/*
 	var osm = L.tileLayer ('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
 	,{
 			attribution: '© <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
@@ -106,6 +169,12 @@ $( document ).ready (function() {
 		,	layers		: [osm, g2, g3, g4]
 		}).setView ([-6.9121804752107305, 107.60644912719728], 13);
 
+	L.control.layers (null, layers).addTo (map);
+
+	map_create_info ();
+	map_load_bts ();
+	map_create_legend ();
+*/
 /*
 	map.on('click', function(e) {
 		console.log ("Lat, Lon : " + e.latlng.lat + ", " + e.latlng.lng);
@@ -113,9 +182,56 @@ $( document ).ready (function() {
 	});
 */
 
-	L.control.layers (null, layers).addTo (map);
+	/*
+	 * BTS Transaksi Graph
+	 */
+	$( "#tr_date_start" ).datepicker ({
+		changeMonth	: true
+	,	changeYear	: true
+	,	dateFormat	: 'yy-mm-dd'
+	,	minDate		: '2005-01-01'
+	,	maxDate		: '2015-12-31'
+	,	onClose		: function (selectedDate)
+		{
+			$( "#tr_date_end" ).datepicker ("option", "minDate", selectedDate);
+		}
+	});
 
-	map_create_info ();
-	map_load_bts ();
-	map_create_legend ();
+	$( "#tr_date_end" ).datepicker ({
+		changeMonth	: true
+	,	changeYear	: true
+	,	dateFormat	: 'yy-mm-dd'
+	,	minDate		: '2005-01-01'
+	,	maxDate		: '2015-12-31'
+	,	onClose		: function (selectedDate)
+		{
+			$( "#tr_date_start" ).datepicker ("option", "maxDate", selectedDate);
+		}
+	});
+
+	var comp = document.getElementById ("bts_transaksi_graph");
+
+	bts_trans_data = new vis.DataSet({});
+
+	var group = new vis.DataSet ();
+
+	group.add ({
+			id : 0
+		,	content : "Jumlah transaksi"
+		,	className : 'graph_line'
+		});
+
+	bts_trans_graph = new vis.Graph2d (comp, bts_trans_data, group, {
+			height	: '220px'
+		,	style	: 'line'
+		});
+
+	bts_trans_init ();
+
+	bts_id = 31523;
+
+	$("#bts_trans_reload").click (function (e)
+	{
+		bts_trans_load (bts_id);
+	});
 });
