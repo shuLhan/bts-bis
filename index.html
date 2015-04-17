@@ -22,6 +22,8 @@
 		<link href="vendor/visjs/vis.min.css" rel="stylesheet">
 		<!-- Jquery UI -->
 		<link href="vendor/jquery-ui/jquery-ui.css" rel="stylesheet">
+		<!-- Bootstrap Table -->
+		<link href="vendor/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
 
 		<link href="css/app.css" rel="stylesheet">
 	</head>
@@ -32,7 +34,110 @@
 			</div>
 
 			<div class="row">
-				<div id="map"></div>
+				<div class="col-sm-6">
+					<div class="panel panel-success">
+						<div class="panel-heading text-center">
+							<strong>DATA BTS PER PROVINSI</strong>
+						</div>
+
+						<table id="provinsi_table"
+							data-toggle="table"
+							data-url="/q/bts_provinsi_jumlah.php"
+							data-show-footer="true"
+							data-height="440"
+							data-classes="table table-hover table-condensed"
+							data-striped="true"
+							data-sortable="true"
+						>
+							<thead>
+								<tr>
+									<th data-field="nama_provinsi"
+										data-footer-formatter="totalTextFormatter"
+										data-sortable="true"
+									>Nama Provinsi</th>
+									<th data-field="jumlah_bts"
+										data-width="80px"
+										data-align="right"
+										data-footer-formatter="totalBTS"
+										data-sortable="true"
+									>Jumlah BTS</th>
+									<th data-field="jumlah_gangguan"
+										data-width="80px"
+										data-align="right"
+										data-footer-formatter="totalGangguan"
+										data-sortable="true"
+									>Jumlah Gangguan</th>
+									<th data-field="jumlah_komplain"
+										data-width="80px"
+										data-align="right"
+										data-footer-formatter="totalKomplain"
+										data-sortable="true"
+									>Jumlah Komplain</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+				</div>
+
+				<div class="col-sm-6">
+					<div class="panel panel-info">
+						<div class="panel-heading text-center">
+							<strong>DATA BTS PER KOTA</strong>
+						</div>
+
+						<table id="kota_table"
+							data-toggle="table"
+							data-show-footer="true"
+							data-height="440"
+							data-classes="table table-hover table-condensed"
+							data-striped="true"
+							data-sortable="true"
+						>
+							<thead>
+								<tr>
+									<th data-field="nama_kota"
+										data-width="40%"
+										data-footer-formatter="totalTextFormatter"
+										data-sortable="true"
+									>Nama Kota</th>
+									<th data-field="jumlah_bts"
+										data-width="80px"
+										data-align="right"
+										data-footer-formatter="totalBTS"
+										data-sortable="true"
+									>Jumlah BTS</th>
+									<th data-field="jumlah_gangguan"
+										data-width="80px"
+										data-align="right"
+										data-footer-formatter="totalGangguan"
+										data-sortable="true"
+									>Jumlah Gangguan</th>
+									<th data-field="jumlah_komplain"
+										data-width="80px"
+										data-align="right"
+										data-footer-formatter="totalKomplain"
+										data-sortable="true"
+									>Jumlah Komplain</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-sm-12">
+					<h4> Gangguan dan Komplain per Tahun di <span id="gk_lokasi">-</span></h4>
+					<div id="gangguan_komplain_graph"></div>
+				</div>
+			</div>
+
+			<hr/>
+
+			<div class="row">
+				<div class="col-sm-12">
+					<div id="map"></div>
+				</div>
 			</div>
 
 			<div class="row">
@@ -51,10 +156,62 @@
 				</div>
 			</div>
 
-			<br/>
+			<div class="row">
+				<div class="col-sm-12">
+					<div id="bts_transaksi_graph"></div>
+				</div>
+			</div>
 
 			<div class="row">
-				<div id="bts_transaksi_graph"></div>
+				<div class="col-sm-6">
+					<div class="panel panel-info">
+						<div class="panel-heading text-center">
+							<strong>DATA BTS</strong>
+						</div>
+						<table class="table">
+							<tr>
+								<th>Mode</th><td id="bts_data_mode"></td>
+							</tr>
+							<tr>
+								<th>Lokasi</th><td id="bts_data_lokasi"></td>
+							</tr>
+							<tr>
+								<th>Jumlah Gangguan</th><td id="bts_data_jml_gangguan"></td>
+							</tr>
+						</table>
+					</div>
+				</div>
+
+				<div class="col-sm-6">
+					<div class="panel panel-danger">
+						<div class="panel-heading text-center">
+							<strong>DATA 10 GANGGUAN TERAKHIR</strong>
+						</div>
+						<table id="gangguan_table"
+							data-toggle="table"
+							data-classes="table table-hover table-condensed"
+							data-striped="true"
+							data-sortable="true"
+						>
+							<thead>
+								<tr>
+									<th data-field="tanggal"
+										data-align="center"
+									>Tanggal</th>
+									<th data-field="nama_gangguan_kategori"
+										data-align="center"
+										data-sortable="true"
+									>Jenis Gangguan</th>
+									<th data-field="status"
+										data-align="center"
+										data-sortable="true"
+										data-formatter="gangguan_status_format"
+									>Status</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+				</div>
 			</div>
 		</div>
 
@@ -70,6 +227,8 @@
 		<script src="vendor/jquery-ui/jquery-ui.js"></script>
 		<!-- Moment JS -->
 		<script src="vendor/momentjs/moment.min.js"></script>
+		<!-- Bootstrap-table -->
+		<script src="vendor/bootstrap-table/bootstrap-table.min.js"></script>
 
 		<!-- Application script -->
 		<script src="js/app.js"></script>

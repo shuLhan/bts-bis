@@ -4,8 +4,12 @@
 	padding: 8px 8px;
 }
 
+.row {
+	margin-bottom	:20px;
+}
+
 #map {
-	height : 220px;
+	height : 300px;
 	margin : 10px;
 }
 
@@ -36,4 +40,12 @@
 	stroke: red;
 	stroke-width: 4px;
 	fill-opacity: 0;
+}
+
+.bar_gangguan {
+	fill: #424534;
+}
+
+.bar_komplain {
+	fill: #562475;
 }

@@ -6,9 +6,16 @@ var g4 = L.layerGroup ();
 var info;
 var bts_trans_graph;
 var bts_trans_data;
+var gangguan_komplain_graph;
+var gangguan_komplain_data;
 var date_start;
 var date_end;
 var bts_id;
+var gk_lokasi;
+
+var t_provinsi;
+var t_kota;
+var t_gangguan;
 
 function get_color (mode)
 {
@@ -26,6 +33,8 @@ function bts_on_click (e)
 	bts_id = bts_data.id;
 
 	bts_trans_load (bts_id);
+	bts_data_load (bts_id);
+	bts_gangguan_load (bts_id);
 }
 
 function map_load_bts ()
@@ -123,10 +132,10 @@ function bts_trans_load (id)
 	dt = date_end.toArray ();
 	url += "&y1="+ dt[0] +"&m1="+ (dt[1]+1) +"&d1="+ dt[2];
 
-	console.log (url);
+	//console.log (url);
 
 	$.getJSON (url, function (res) {
-		console.log (res);
+		//console.log (res);
 		if (res.success) {
 			bts_trans_data.clear ();
 			bts_trans_data.add (res.data);
@@ -150,6 +159,145 @@ function bts_trans_load (id)
 	});
 }
 
+function gangguan_komplain_init ()
+{
+	var start = moment().startOf("year");
+	var end = moment().endOf("year");
+
+	gangguan_komplain_graph.setOptions ({
+			start: start.format("YYYY-MM")
+		,	end: end.format("YYYY-MM")
+		});
+}
+
+function gangguan_komplain_load (prov)
+{
+	var data = [];
+	var m = moment();
+	var month_end = m.format("M");
+
+	for (i = 1; i <= month_end; i++) {
+		var o = {};
+		o.x = m.format ("YYYY-") + (i < 10 ? '0'+i : i);
+		o.y = Math.floor(Math.random()*24);
+		o.group = 0;
+
+		data.push (o);
+
+		o = {};
+		o.x = m.format ("YYYY-") + (i < 10 ? '0'+i : i);
+		o.y = Math.floor(Math.random()*24);
+		o.group = 1;
+
+		data.push (o);
+	}
+
+	//console.log (data);
+	gangguan_komplain_data.clear ();
+	gangguan_komplain_data.add (data);
+
+	var group = new vis.DataSet ();
+
+	group.add ({
+			id : 0
+		,	content : "Gangguan"
+		,	className : 'bar_gangguan'
+		});
+	group.add ({
+			id : 1
+		,	content : "Komplain"
+		,	className : 'bar_komplain'
+		});
+
+	gangguan_komplain_graph.setGroups (group);
+	gangguan_komplain_graph.setItems (gangguan_komplain_data);
+	gangguan_komplain_graph.redraw ();
+
+	gk_lokasi.html (prov);
+}
+
+function bts_data_load (id)
+{
+	var url = "/q/bts_data.php?id="+ id;
+
+	$("#bts_data_mode").html ("-");
+	$("#bts_data_lokasi").html ("-");
+	$("#bts_data_jml_gangguan").html ("-");
+
+	$.getJSON (url, function (res) {
+		//console.log (res);
+
+		if (res.success) {
+			$("#bts_data_mode").html (res.data[0].mode);
+			$("#bts_data_lokasi").html (res.data[0].lokasi);
+			$("#bts_data_jml_gangguan").html (res.data[0].jumlah_gangguan);
+		}
+	});
+}
+
+function bts_gangguan_load (id)
+{
+	var url = "/q/bts_last_10_gangguan.php?id="+ id;
+
+	$.getJSON (url, function (res) {
+		//console.log (res);
+
+		if (res.success) {
+			t_gangguan.bootstrapTable ('load', res.data);
+		}
+	});
+}
+
+function gangguan_status_format (v)
+{
+    return '<span class="text-success glyphicon glyphicon-'
+			+ (v == 1 ? 'ok' : 'remove')
+			+'"></span>';
+}
+
+function totalTextFormatter(data)
+{
+	return 'Total';
+}
+
+function get_total_column (data, col_name)
+{
+	var total = 0;
+
+	$.each(data, function (i, row) {
+		total += eval("row." + col_name);
+	});
+	return total;
+}
+
+function totalBTS (data)
+{
+	return get_total_column (data, "jumlah_bts");
+}
+
+function totalGangguan (data)
+{
+	return get_total_column (data, "jumlah_gangguan");
+}
+
+function totalKomplain (data)
+{
+	return get_total_column (data, "jumlah_komplain");
+}
+
+function table_kota_load (prov)
+{
+	var url = "/q/bts_kota_jumlah.php?nama_provinsi=Provinsi "+ prov;
+
+	$.getJSON (url, function (res) {
+		//console.log (res);
+
+		if (res.success) {
+			t_kota.bootstrapTable ('load', res.data);
+		}
+	});
+}
+
 $( document ).ready (function() {
 	var layers =
 	{
@@ -157,7 +305,7 @@ $( document ).ready (function() {
 	,	"3G" : g3
 	,	"4G" : g4
 	};
-/*
+
 	var osm = L.tileLayer ('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
 	,{
 			attribution: '© <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
@@ -174,7 +322,7 @@ $( document ).ready (function() {
 	map_create_info ();
 	map_load_bts ();
 	map_create_legend ();
-*/
+
 /*
 	map.on('click', function(e) {
 		console.log ("Lat, Lon : " + e.latlng.lat + ", " + e.latlng.lng);
@@ -209,6 +357,9 @@ $( document ).ready (function() {
 		}
 	});
 
+	/*
+		Grafik transaksi.
+	*/
 	var comp = document.getElementById ("bts_transaksi_graph");
 
 	bts_trans_data = new vis.DataSet({});
@@ -222,8 +373,9 @@ $( document ).ready (function() {
 		});
 
 	bts_trans_graph = new vis.Graph2d (comp, bts_trans_data, group, {
-			height	: '220px'
-		,	style	: 'line'
+			height		: '300px'
+		,	style		: 'line'
+		,	clickToUse	: true
 		});
 
 	bts_trans_init ();
@@ -234,4 +386,58 @@ $( document ).ready (function() {
 	{
 		bts_trans_load (bts_id);
 	});
+
+	bts_data_load (bts_id);
+	bts_trans_load (bts_id);
+	bts_gangguan_load (bts_id);
+
+	/*
+	 * Table Provinsi, Kota dan Gangguan.
+	 */
+	t_prov = $("#provinsi_table");
+	t_kota = $("#kota_table");
+	t_gangguan = $("#gangguan_table");
+
+	t_prov.on ("click-row.bs.table", function (row, el) {
+		table_kota_load (el.nama_provinsi);
+		gangguan_komplain_load ("Provinsi "+ el.nama_provinsi);
+	});
+
+	t_kota.on ("click-row.bs.table", function (row, el) {
+		gangguan_komplain_load (el.nama_kota);
+	});
+
+	/*
+		Grafik Gangguan dan Komplain.
+	*/
+	gk_lokasi = $("#gk_lokasi");
+	var comp = document.getElementById ("gangguan_komplain_graph");
+
+	gangguan_komplain_data = new vis.DataSet({});
+
+	var group = new vis.DataSet ();
+
+	group.add ({
+			id : 0
+		,	content : "Gangguan"
+		,	className : 'bar_gangguan'
+		});
+	group.add ({
+			id : 1
+		,	content : "Komplain"
+		,	className : 'bar_komplain'
+		});
+
+	gangguan_komplain_graph = new vis.Graph2d (comp, gangguan_komplain_data, group, {
+			height		: '300px'
+		,	style		: 'bar'
+		,	clickToUse	: true
+		,	legend		: true
+		,	barChart	:
+			{
+				handleOverlap : "sideBySide"
+			}
+		});
+
+	gangguan_komplain_init ();
 });
