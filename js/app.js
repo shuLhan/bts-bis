@@ -6,15 +6,10 @@ var g4 = L.layerGroup ();
 var info;
 var bts_trans_graph;
 var bts_trans_data;
-var gangguan_komplain_graph;
-var gangguan_komplain_data;
+var date_cur;
 var date_start;
 var date_end;
 var bts_id;
-var gk_lokasi;
-
-var t_provinsi;
-var t_kota;
 var t_gangguan;
 
 function get_color (mode)
@@ -170,52 +165,6 @@ function gangguan_komplain_init ()
 		});
 }
 
-function gangguan_komplain_load (prov)
-{
-	var data = [];
-	var m = moment();
-	var month_end = m.format("M");
-
-	for (i = 1; i <= month_end; i++) {
-		var o = {};
-		o.x = m.format ("YYYY-") + (i < 10 ? '0'+i : i);
-		o.y = Math.floor(Math.random()*24);
-		o.group = 0;
-
-		data.push (o);
-
-		o = {};
-		o.x = m.format ("YYYY-") + (i < 10 ? '0'+i : i);
-		o.y = Math.floor(Math.random()*24);
-		o.group = 1;
-
-		data.push (o);
-	}
-
-	//console.log (data);
-	gangguan_komplain_data.clear ();
-	gangguan_komplain_data.add (data);
-
-	var group = new vis.DataSet ();
-
-	group.add ({
-			id : 0
-		,	content : "Gangguan"
-		,	className : 'bar_gangguan'
-		});
-	group.add ({
-			id : 1
-		,	content : "Komplain"
-		,	className : 'bar_komplain'
-		});
-
-	gangguan_komplain_graph.setGroups (group);
-	gangguan_komplain_graph.setItems (gangguan_komplain_data);
-	gangguan_komplain_graph.redraw ();
-
-	gk_lokasi.html (prov);
-}
-
 function bts_data_load (id)
 {
 	var url = "/q/bts_data.php?id="+ id;
@@ -285,20 +234,20 @@ function totalKomplain (data)
 	return get_total_column (data, "jumlah_komplain");
 }
 
-function table_kota_load (prov)
-{
-	var url = "/q/bts_kota_jumlah.php?nama_provinsi=Provinsi "+ prov;
-
-	$.getJSON (url, function (res) {
-		//console.log (res);
-
-		if (res.success) {
-			t_kota.bootstrapTable ('load', res.data);
-		}
-	});
-}
-
 $( document ).ready (function() {
+	// Init.
+	date_cur = moment();
+
+	barchart_init_bts_mode ();
+	barchart_init_gangguan ();
+	barchart_init_komplain ();
+
+	// Gangguan and komplain
+	gk_init ();
+
+	//
+	// MAP
+	//
 	var layers =
 	{
 		"2G" : g2
@@ -391,53 +340,8 @@ $( document ).ready (function() {
 	bts_trans_load (bts_id);
 	bts_gangguan_load (bts_id);
 
-	/*
-	 * Table Provinsi, Kota dan Gangguan.
-	 */
-	t_prov = $("#provinsi_table");
-	t_kota = $("#kota_table");
+	// Table gangguan
 	t_gangguan = $("#gangguan_table");
-
-	t_prov.on ("click-row.bs.table", function (row, el) {
-		table_kota_load (el.nama_provinsi);
-		gangguan_komplain_load ("Provinsi "+ el.nama_provinsi);
-	});
-
-	t_kota.on ("click-row.bs.table", function (row, el) {
-		gangguan_komplain_load (el.nama_kota);
-	});
-
-	/*
-		Grafik Gangguan dan Komplain.
-	*/
-	gk_lokasi = $("#gk_lokasi");
-	var comp = document.getElementById ("gangguan_komplain_graph");
-
-	gangguan_komplain_data = new vis.DataSet({});
-
-	var group = new vis.DataSet ();
-
-	group.add ({
-			id : 0
-		,	content : "Gangguan"
-		,	className : 'bar_gangguan'
-		});
-	group.add ({
-			id : 1
-		,	content : "Komplain"
-		,	className : 'bar_komplain'
-		});
-
-	gangguan_komplain_graph = new vis.Graph2d (comp, gangguan_komplain_data, group, {
-			height		: '300px'
-		,	style		: 'bar'
-		,	clickToUse	: true
-		,	legend		: true
-		,	barChart	:
-			{
-				handleOverlap : "sideBySide"
-			}
-		});
 
 	gangguan_komplain_init ();
 });
