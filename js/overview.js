@@ -104,7 +104,7 @@ function barchart_init_gangguan ()
 							enabled			: true
 						,	format			: '{point.name}:<br> {point.y}'
 						,	connectorPadding: 0
-						,	distance		: -20
+						,	distance		: -30
 						,	style			:
 							{
 								"fontSize"		: "13px"
