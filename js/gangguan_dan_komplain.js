@@ -214,6 +214,16 @@ function gk_graph_init ()
 			{
 				handleOverlap : "sideBySide"
 			}
+		,	legend		:{
+				left		:{
+					visible		:true
+				,	position	:"top-right"
+				}
+			,	right		:{
+					visible		:true
+				,	position	:"top-right"
+				}
+			}
 		});
 }
 
