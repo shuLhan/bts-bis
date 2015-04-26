@@ -324,7 +324,6 @@ $( document ).ready (function() {
 	bts_trans_graph = new vis.Graph2d (comp, bts_trans_data, group, {
 			height		: '300px'
 		,	style		: 'line'
-		,	clickToUse	: true
 		});
 
 	bts_trans_init ();
