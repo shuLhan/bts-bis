@@ -3,7 +3,7 @@
 include "JaringDB.php";
 
 $db = null;
-$db_url = "pgsql:dbname=dm_bts_gangguan;host=127.0.0.1";
+$db_url = "pgsql:dbname=dm_bts_transaksi_penggunaan;host=127.0.0.1";
 $db_user = "telkomsel";
 $db_pass = "telkomsel";
 $out = [
@@ -20,7 +20,7 @@ try {
 
 	$q = "
 select GK.nama as name, count(G.id_tanggal_gangguan) as y
-from bts_gangguan_2 G
+from bts_gangguan G
 , bts_gangguan_kategori GK
 , tanggal T
 where G.id_gangguan_kategori = GK.id
