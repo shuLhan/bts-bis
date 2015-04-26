@@ -264,7 +264,7 @@ $( document ).ready (function() {
 	map = L.map ('map', {
 			dragging	: true
 		,	layers		: [osm, g2, g3, g4]
-		}).setView ([-6.9121804752107305, 107.60644912719728], 13);
+		}).setView ([-6.890554482937745, 107.6103973388672], 14);
 
 	L.control.layers (null, layers).addTo (map);
 
@@ -272,12 +272,10 @@ $( document ).ready (function() {
 	map_load_bts ();
 	map_create_legend ();
 
-/*
 	map.on('click', function(e) {
 		console.log ("Lat, Lon : " + e.latlng.lat + ", " + e.latlng.lng);
 		console.log (e);
 	});
-*/
 
 	/*
 	 * BTS Transaksi Graph
